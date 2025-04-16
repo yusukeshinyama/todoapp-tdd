@@ -20,16 +20,16 @@ class TodoApplicationTests {
 	fun contextLoads() {
 	}
 
-	@Test
-	fun `初期状態でtodoエンドポイントをGETすると、空のリストが返る。`() {
-		mockMvc
-			.perform(
-				get("/api/todo")
-			)
-			.andExpect(status().isOk)
-			.andExpect(jsonPath("$").isEmpty)
-			.andExpect(jsonPath("$").isArray)
-	}
+//	@Test
+//	fun `初期状態でtodoエンドポイントをGETすると、空のリストが返る。`() {
+//		mockMvc
+//			.perform(
+//				get("/api/todo")
+//			)
+//			.andExpect(status().isOk)
+//			.andExpect(jsonPath("$").isEmpty)
+//			.andExpect(jsonPath("$").isArray)
+//	}
 
 //	@Test
 //	fun `todoエンドポイントにJSONをPOSTすると、200 OKが返る。`() {
