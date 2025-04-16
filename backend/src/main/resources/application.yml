@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: todo
+aws:
+  dynamodb:
+    region: ap-northeast-1
+    endpoint: http://localhost:4566/
+    tableName: todo
