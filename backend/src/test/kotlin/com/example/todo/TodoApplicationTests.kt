@@ -5,19 +5,67 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromS
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest
+import java.util.UUID
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class TodoApplicationTests {
 
 	@Autowired
-	lateinit var mockMvc: MockMvc
+	private lateinit var mockMvc: MockMvc
+
+	@Autowired
+	private lateinit var dynamoDbClient: DynamoDbClient
 
 	@Test
 	fun contextLoads() {
+	}
+
+	@Test
+	fun dynamoDbTest() {
+		// DynamoDB関連の機能テスト。
+		val tableName = "todo"
+		val id = UUID.randomUUID().toString()
+
+		// テーブルに値を追加。
+		val item = mapOf(
+			"PK" to fromS(id),
+			"text" to fromS("foo"),
+		)
+		val putItemRequest = PutItemRequest
+			.builder()
+			.tableName(tableName)
+			.item(item)
+			.build()
+		dynamoDbClient.putItem(putItemRequest)
+
+		// テーブルの全項目を取得。
+		val scanRequest = ScanRequest
+			.builder()
+			.tableName(tableName)
+			.build()
+		val scanResponse = dynamoDbClient.scan(scanRequest)
+		for (item in scanResponse.items()) {
+			val id = item["PK"]
+			val text = item["text"]
+			println("id=$id, text=$text")
+		}
+
+		// テーブルから値を削除。
+		val key = mapOf(
+			"PK" to fromS(id),
+		)
+		val deleteItemRequest = DeleteItemRequest
+			.builder()
+			.tableName(tableName)
+			.key(key)
+			.build()
+		dynamoDbClient.deleteItem(deleteItemRequest)
 	}
 
 //	@Test
