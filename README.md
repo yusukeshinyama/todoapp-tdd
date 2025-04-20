@@ -1,7 +1,7 @@
 # todoapp-tdd
 
 このリポジトリは、TDDワークショップのための演習教材である。
-題材として、Spring Boot + DynamoDB を使った簡単な TODO アプリを使っている。
+題材として、Spring Boot + DynamoDB を使った簡単な TODO アプリを作成する。
 
 このワークショップの目的は2つある:
 
@@ -10,12 +10,13 @@
 
 ## 使い方
 
-1. git cloneする。
+1. `git clone https://github.com/yusukeshinyama/todoapp-tdd` する。
 2. トップレベルのフォルダで `$ docker compose up` を実行。
 3. `backend`フォルダで `$ make test` を実行し、エラーが出ないことを確認。
 4. `backend/src/test/.../TodoApplicationTests.kt` を開き、
    コメントアウトされているテストを埋めていく。
-5. リファクタリングして Service層、Repository層を分離する (Clean Architecture)。
+   この段階では Controllerクラスのみですべての機能を実装する。
+5. リファクタリングして Service層、Repository層を分離する。
 
 ## 最終的に作りたいもの
 
