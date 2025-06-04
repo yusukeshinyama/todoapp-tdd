@@ -8,6 +8,13 @@
 - システムの機能を外側からテストする方法 (blackbox test) を習得してもらう。
 - TDDによってリファクタリングが安心してできることを体験してもらう。
 
+## ファイル
+
+- `README.md`: このファイル。
+- `docker-compose.yml`: LocalStackを動かすためのファイル。
+- `backend/`: 実際のbackendコードが入っているフォルダ。(Spring Initializrで作成)
+- `localstack/`: LocalStack初期化用スクリプト。
+
 ## 使い方
 
 1. `git clone https://github.com/yusukeshinyama/todoapp-tdd` する。
@@ -43,12 +50,23 @@ $ curl http://localhost:8080/api/todo
 [{"id":"2", "text":"bar"}]
 ```
 
-## ファイル
+### ブラックボックステストの考え方
 
-- `README.md`: このファイル。
-- `docker-compose.yml`: LocalStackを動かすためのファイル。
-- `backend`: 実際のbackendコードが入っているフォルダ。(Spring Initializrで作成)
-- `localstack`: LocalStack初期化用スクリプト。
+テストするときは、基本的にテスト対象は「ブラックボックス」であると考える。
+つまり、テスト対象の内部は未知であり、ふるまいを外からテストする唯一の手段は
+その入力を変化させ、その出力を観察することしかできない。
+したがって、テストする場合には
+「どういう入力→出力の変化を確認すれば、期待通りのふるまいであると確信できるのか?」
+を考えることになる。
+
+```mermaid
+graph LR
+    INPUT(["入力"]) --> SUT["テスト対象"]
+    SUT --> OUTPUT(["出力"])
+    style INPUT fill:white,color:black
+    style OUTPUT fill:white,color:black
+    style SUT fill:black,color:white
+```
 
 ## 複数ユーザへの拡張
 
