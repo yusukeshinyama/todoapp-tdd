@@ -23,6 +23,7 @@
 4. `backend/src/test/.../TodoApplicationTests.kt` を開き、
    コメントアウトされているテストを埋めていく。
    この段階では Controllerクラスのみですべての機能を実装する。
+   **注意: テストを書く段階では実装方法を考えないこと**  
 5. リファクタリングして Service層、Repository層を分離する。
 
 ## 最終的に作りたいもの
