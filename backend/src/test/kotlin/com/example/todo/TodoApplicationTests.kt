@@ -1,5 +1,6 @@
 package com.example.todo
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -8,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue.fromS
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 import java.util.UUID
@@ -15,6 +17,9 @@ import java.util.UUID
 @SpringBootTest
 @AutoConfigureMockMvc
 class TodoApplicationTests {
+
+	@Autowired
+	private lateinit var objectMapper: ObjectMapper
 
 	@Autowired
 	private lateinit var mockMvc: MockMvc
@@ -33,14 +38,14 @@ class TodoApplicationTests {
 		val id = UUID.randomUUID().toString()
 
 		// テーブルに値を追加。
-		val item = mapOf(
+		val item1 = mapOf(
 			"PK" to fromS(id),
 			"text" to fromS("foo"),
 		)
 		val putItemRequest = PutItemRequest
 			.builder()
 			.tableName(tableName)
-			.item(item)
+			.item(item1)
 			.build()
 		dynamoDbClient.putItem(putItemRequest)
 
@@ -56,14 +61,26 @@ class TodoApplicationTests {
 			println("id=$id, text=$text")
 		}
 
+		// テーブルの1項目を取得。
+		val key1 = mapOf(
+			"PK" to fromS(id),
+		)
+		val getItemRequest = GetItemRequest
+			.builder()
+			.tableName(tableName)
+			.key(key1)
+			.build()
+		val item2 = dynamoDbClient.getItem(getItemRequest)
+		println("item2=$item2")
+
 		// テーブルから値を削除。
-		val key = mapOf(
+		val key2 = mapOf(
 			"PK" to fromS(id),
 		)
 		val deleteItemRequest = DeleteItemRequest
 			.builder()
 			.tableName(tableName)
-			.key(key)
+			.key(key2)
 			.build()
 		dynamoDbClient.deleteItem(deleteItemRequest)
 	}
@@ -81,6 +98,14 @@ class TodoApplicationTests {
 
 //	@Test
 //	fun `todoエンドポイントにJSONをPOSTすると、200 OKが返る。`() {
+//		val data = TodoRequest(text="abc")
+//		mockMvc
+//			.perform(
+//				post("/api/todo")
+//					.contentType(MediaType.APPLICATION_JSON)
+//					.content(objectMapper.writeValueAsString(data))
+//			)
+//			.andExpect(status().isOk)
 //	}
 
 //	@Test
