@@ -5,5 +5,7 @@ services:
     image: localstack/localstack
     ports:
       - "4566:4566"
+    environment:
+      DYNAMODB_SHARE_DB: 1
     volumes:
       - ./localstack/:/etc/localstack/init/ready.d/
