@@ -17,21 +17,24 @@ class TodoRepository(
     val tableName: String,
 ) {
 
-    fun getTodos(): List<TodoEntity> {
+    fun getTodos(userId: String): List<TodoEntity> {
         val scanRequest = ScanRequest
             .builder()
             .tableName(tableName)
             .build()
         val scanResponse = dynamoDbClient.scan(scanRequest)
         val items = scanResponse.items().toList()
-        return items.map {
-            TodoEntity(id = it["PK"]!!.s(), text = it["text"]!!.s())
-        }
+        return items
+            .filter { it["PK"]!!.s() == userId }
+            .map {
+                TodoEntity(id = it["SK"]!!.s(), text = it["text"]!!.s())
+            }
     }
 
-    fun getTodo1(id: String): TodoEntity {
+    fun getTodo1(userId: String, id: String): TodoEntity {
         val key = mapOf(
-            "PK" to fromS(id),
+            "PK" to fromS(userId),
+            "SK" to fromS(id),
         )
         val getItemRequest = GetItemRequest
             .builder()
@@ -44,15 +47,16 @@ class TodoRepository(
         }
 
         val item = getItemResponse.item()
-        return TodoEntity(id = item["PK"]!!.s(), text = item["text"]!!.s())
+        return TodoEntity(id = item["SK"]!!.s(), text = item["text"]!!.s())
     }
 
-    fun addTodo(text: String): String {
+    fun addTodo(userId: String, data: TodoRequest): String {
         // テーブルに値を追加。
         val id = UUID.randomUUID().toString()
         val item1 = mapOf(
-            "PK" to fromS(id),
-            "text" to fromS(text),
+            "PK" to fromS(userId),
+            "SK" to fromS(id),
+            "text" to fromS(data.text),
         )
         val putItemRequest = PutItemRequest
             .builder()
@@ -63,10 +67,11 @@ class TodoRepository(
         return id
     }
 
-    fun deleteTodo(id: String) {
+    fun deleteTodo(userId: String, id: String) {
         // テーブルから値を取得。
         val key = mapOf(
-            "PK" to fromS(id),
+            "PK" to fromS(userId),
+            "SK" to fromS(id),
         )
         val getItemRequest = GetItemRequest
             .builder()
