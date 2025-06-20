@@ -184,14 +184,15 @@ class TodoApplicationTests {
 	@Test
 	fun `todoエンドポイントにJSONをPOSTすると、データベースに追加されている。`() {
 		// Arrange
+		val userId = "john"
 
 		// Act
 		// {text:"abc"}をポストする
 		val data = TodoRequest(text = "abc")
-		postTodo("john", data)
+		postTodo(userId, data)
 
 		// Assert
-		val items = getTodos("john")
+		val items = getTodos(userId)
 		// テーブルを全取得すると長さ1。
 		assertThat(items.size, equalTo(1))
 		// 0番目の要素が "abc" である。
@@ -201,17 +202,18 @@ class TodoApplicationTests {
 	@Test
 	fun `複数回JSONをPOSTすると、その数だけデータベースに追加されている。`() {
 		// Arrange
+		val userId = "john"
 
 		// Act
 		// {text:"abc"}をポストする
 		val data1 = TodoRequest(text="abc")
-		postTodo("john", data1)
+		postTodo(userId, data1)
 		// {text:"def"}をポストする
 		val data2 = TodoRequest(text="def")
-		postTodo("john", data2)
+		postTodo(userId, data2)
 
 		// Assert
-		val items = getTodos("john")
+		val items = getTodos(userId)
 		// テーブルを全取得すると長さ2。
 		assertThat(items.size, equalTo(2))
 		val texts = items.map { it.text }
@@ -222,17 +224,18 @@ class TodoApplicationTests {
 	@Test
 	fun `GETすると、現在までにPOSTした内容すべてがリストとして返される。`() {
 		// Arrange
+		val userId = "john"
 		// {text:"abc"}をポストする
 		val data1 = TodoRequest(text="abc")
-		postTodo("john", data1)
+		postTodo(userId, data1)
 		// {text:"def"}をポストする
 		val data2 = TodoRequest(text="def")
-		postTodo("john", data2)
+		postTodo(userId, data2)
 
 		// Act
 		// /api/todoをGETする。
 		val result = mockMvc.perform(
-			get("/api/todo/john")
+			get("/api/todo/$userId")
 		)
 			.andReturn()
 		val json = result.response.contentAsString
@@ -247,14 +250,17 @@ class TodoApplicationTests {
 
 	@Test
 	fun `POSTすると、新しく追加されたidを返す。`() {
+		// Arrange
+		val userId = "john"
+
 		// Act
 		// {text:"abc"}をポストし、idを取得する。
 		val data1 = TodoRequest(text="abc")
-		val id = postTodo("john", data1)
+		val id = postTodo(userId, data1)
 
 		// Assert
 		// 返されたidの項目がテーブル中に存在している。
-		val item = getTodo1("john", id)
+		val item = getTodo1(userId, id)
 		assertThat(item.id, equalTo(id))
 		assertThat(item.text, equalTo(data1.text))
 	}
@@ -275,15 +281,16 @@ class TodoApplicationTests {
 	@Test
 	fun `特定のIDに対してGETすると、その項目だけを返す`() {
 		// Arrange
+		val userId = "john"
 		// {text:"abc"}をポストし、idを取得する。
 		val data1 = TodoRequest(text="abc")
-		val id = postTodo("john", data1)
+		val id = postTodo(userId, data1)
 
 		// act
 		// /api/todo/id をGETする。
 		mockMvc
 			.perform(
-				get("/api/todo/john/$id")
+				get("/api/todo/$userId/$id")
 			)
 			// Assert
 			// 200が返される。
@@ -310,15 +317,16 @@ class TodoApplicationTests {
 	@Test
 	fun `特定のIDに対してDELETEすると、その項目はデータベースから削除される。`() {
 		// Arrange
+		val userId = "john"
 		// {text:"abc"}をポストし、idを取得する。
 		val data1 = TodoRequest(text="abc")
-		val id = postTodo("john", data1)
+		val id = postTodo(userId, data1)
 
 		// act
 		// /api/todo/id をDELETEする。
 		mockMvc
 			.perform(
-				delete("/api/todo/john/$id")
+				delete("/api/todo/$userId/$id")
 			)
 			// Assert
 			// 200が返される。
@@ -328,7 +336,7 @@ class TodoApplicationTests {
 		// 返されたidの項目がテーブル中に存在していない。
 		mockMvc
 			.perform(
-				get("/api/todo/john/$id")
+				get("/api/todo/$userId/$id")
 			)
 			// Assert
 			// 200が返される。
@@ -338,18 +346,18 @@ class TodoApplicationTests {
 	@Test
 	fun `異なるユーザIDに対するPOSTは独立している。`() {
 		// Arrange
-		val user1 = "john"
-		val user2 = "mary"
+		val userId1 = "john"
+		val userId2 = "mary"
 		// user1とuser2にそれぞれ項目を追加。
 		val data1 = TodoRequest(text="abc")
 		val data2 = TodoRequest(text="def")
-		postTodo(user1, data1)
-		postTodo(user2, data2)
+		postTodo(userId1, data1)
+		postTodo(userId2, data2)
 
 		// Act
 		// user1とuser2の項目一覧をそれぞれ取得。
-		val items1 = getTodos(user1)
-		val items2 = getTodos(user2)
+		val items1 = getTodos(userId1)
+		val items2 = getTodos(userId2)
 
 		// Assert
 		// 別々の値が含まれていることをチェック。
