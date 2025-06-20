@@ -6,7 +6,7 @@ GRADLE=./gradlew
 
 all: test
 
-test:
+test: clean
 	$(GRADLE) test
 
 clean:
